@@ -41,6 +41,82 @@ git pull origin main   # if you already pushed from the other machine
 git add -A && git commit -m "your message" && git push
 ```
 
+## Work on your personal machine (same level as now)
+
+Clone and run the API + dashboard so you can keep developing Meridian the same way.
+
+### 1. Clone
+
+```bash
+cd ~   # or wherever you keep projects
+git clone https://github.com/Dilan1234321/meridian-workspace.git
+cd meridian-workspace
+```
+
+### 2. Python (API + Meridian core)
+
+From the **repo root** (`meridian-workspace/`):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install uvicorn fastapi pydantic pypdf python-multipart reportlab
+pip install python-docx      # optional: for .docx in build_training_data
+pip install openai          # optional: for LLM auditor
+```
+
+For the API to find `meridian_core`, run commands from the repo root (or add it to `PYTHONPATH`).
+
+### 3. Env (API keys, LLM)
+
+Create a `.env` in the repo root (not committed). Copy from your other machine or add:
+
+```bash
+# Optional: use LLM for audits
+MERIDIAN_USE_LLM=1
+OPENAI_API_KEY=sk-...
+# Optional: custom model
+# MERIDIAN_LLM_MODEL=gpt-4o
+```
+
+### 4. Run API (backend)
+
+From repo root:
+
+```bash
+source .venv/bin/activate
+uvicorn projects.meridian.api.main:app --host 0.0.0.0 --port 8000
+```
+
+Or: `./run_meridian_api.sh` (if `.venv` is in repo root).
+
+### 5. Run dashboard (frontend)
+
+In a **second terminal**, from repo root:
+
+```bash
+cd projects/meridian/dashboard
+npm install
+npm run dev
+```
+
+Open **http://localhost:3000**. It talks to the API at `http://localhost:8000` by default.
+
+### 6. Same context you have now
+
+- **SOUL.md**, **USER.md**, **AGENTS.md** — in the repo; read them each session.
+- **memory/** — daily notes; in the repo.
+- **MEMORY.md** — create in repo root for long-term memory (main session only); add to `.gitignore` if you don’t want it on GitHub.
+- **Rubrics** — `projects/meridian/prompts/rubric_pre_health.md`, `rubric_builder.md` (in repo).
+- **Training data** — `projects/meridian/prompts/training_data.json` (in repo; may be empty; regenerate with `python3 -m projects.meridian.scripts.build_training_data` after `pip install python-docx` if you have resumes in `assets/resumes/`).
+
+### 7. Quick test
+
+1. Start API (port 8000), then dashboard (port 3000).
+2. Open http://localhost:3000, upload a PDF — you should get an audit (rule-based or LLM if `MERIDIAN_USE_LLM=1` and `OPENAI_API_KEY` set).
+
+---
+
 ## Notes
 
 - **Secrets:** `.env` and `*.env` are in `.gitignore`; don’t commit API keys. Copy `.env` by hand to your personal machine or use a secrets manager.
